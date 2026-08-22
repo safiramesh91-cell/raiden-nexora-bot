@@ -23,7 +23,25 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 class Base(DeclarativeBase):
-    pass
+    pass 
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    telegram_id: Mapped[int] = mapped_column(
+        BigInteger, unique=True, nullable=False, index=True
+    )
+    username: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    pubg_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    warnings: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+
+Base.metadata.create_all(engine)
 TELEGRAM_CHANNEL = os.getenv(
     "TELEGRAM_CHANNEL",
     "@NexoraArenaOfficial"
