@@ -12,6 +12,18 @@ from telegram.ext import (
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is missing")
+
+SQLALCHEMY_DATABASE_URL = DATABASE_URL.replace(
+    "postgresql://", "postgresql+psycopg://", 1
+)
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
+
+class Base(DeclarativeBase):
+    pass
 TELEGRAM_CHANNEL = os.getenv(
     "TELEGRAM_CHANNEL",
     "@NexoraArenaOfficial"
