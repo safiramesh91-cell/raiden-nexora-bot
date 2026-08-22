@@ -1,5 +1,7 @@
 import os
-
+from datetime import datetime, timezone
+from sqlalchemy import create_engine, String, BigInteger, Integer, DateTime, Text, Boolean
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     Application,
@@ -9,7 +11,7 @@ from telegram.ext import (
 )
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 TELEGRAM_CHANNEL = os.getenv(
     "TELEGRAM_CHANNEL",
     "@NexoraArenaOfficial"
