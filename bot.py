@@ -375,18 +375,36 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conversation += f"{item['role']}: {item['text']}\n"
 
     try:
-        response = await gemini_client.aio.models.generate_content(
-            model="gemini-3.7-flash",
-            contents=conversation,
-            config={
-                "system_instruction": (
-                    "شما NEXORA، دستیار هوشمند NEXORA ARENA هستید. "
-                    "با کاربران دوستانه، واضح و مفید صحبت کن. "
-                    "اگر کاربر فارسی صحبت کرد، فارسی جواب بده. "
-                    "از تاریخچه گفتگو برای به خاطر سپردن صحبت‌های قبلی استفاده کن."
+        response = None
+
+        # اگر Gemini موقتاً خطای 503 داد، 3 بار تلاش می‌کنیم
+        for attempt in range(3):
+            try:
+                response = await gemini_client.aio.models.generate_content(
+                    model="gemini-3.7-flash",
+                    contents=conversation,
+                    config={
+                        "system_instruction": (
+                            "شما NEXORA، دستیار هوشمند NEXORA ARENA هستید. "
+                            "با کاربران دوستانه، واضح و مفید صحبت کن. "
+                            "اگر کاربر فارسی صحبت کرد فارسی جواب بده. "
+                            "از تاریخچه گفتگو برای حفظ زمینه مکالمه استفاده کن."
+                        )
+                    }
                 )
-            }
-        )
+                break
+
+            except Exception as e:
+                print(f"Gemini attempt {attempt + 1} error:", e)
+
+                if attempt < 2:
+                    await asyncio.sleep(3)
+
+        if response is None:
+            await update.message.reply_text(
+                "⚠️ سرویس هوش مصنوعی فعلاً شلوغ است. چند لحظه دیگر دوباره امتحان کنید."
+            )
+            return
 
         answer = response.text
 
