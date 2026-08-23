@@ -362,8 +362,8 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user_message:
         return
 
-           try:
-        response = await gemini_client.aio.models.generate_content(
+try:
+ response = await gemini_client.aio.models.generate_content(
             model="gemini-2.5-flash",
             contents=user_message,
             config={
