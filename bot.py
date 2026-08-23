@@ -359,10 +359,32 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user_message:
         return
 
-    await update.message.reply_text(
-        "🤖 دستیار هوشمند NEXORA فعال است.\n\n"
-        "پیام شما دریافت شد: " + user_message
-    )
+    try:
+        from openai import AsyncOpenAI
+
+        client = AsyncOpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
+
+        response = await client.responses.create(
+            model="gpt-5-mini",
+            instructions=(
+                "تو دستیار هوشمند NEXORA هستی. "
+                "به کاربران دوستانه، واضح و مفید پاسخ بده. "
+                "اگر کاربر فارسی صحبت کرد، فارسی جواب بده."
+            ),
+            input=user_message
+        )
+
+        await update.message.reply_text(
+            response.output_text
+        )
+
+    except Exception as e:
+        print("OpenAI error:", e)
+        await update.message.reply_text(
+            "⚠️ فعلاً نتوانستم پاسخ هوشمند تولید کنم. لطفاً دوباره تلاش کنید."
+        )
 
 
 def main():
