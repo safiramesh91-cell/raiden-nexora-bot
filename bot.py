@@ -1,4 +1,5 @@
 import os
+from google import genai
 from datetime import datetime, timezone
 from sqlalchemy import create_engine, String, BigInteger, Integer, DateTime, Text, Boolean
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
@@ -14,6 +15,8 @@ MessageHandler,
 )
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is missing")
@@ -359,29 +362,23 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user_message:
         return
 
-    try:
-        from openai import AsyncOpenAI
-
-        client = AsyncOpenAI(
-            api_key=os.getenv("OPENAI_API_KEY")
+        try:
+        response = await gemini_client.aio.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=user_message,
+            config={
+                "system_instruction": (
+                    "تو دستیار هوشمند NEXORA هستی. "
+                    "به کاربران دوستانه، واضح و مفید پاسخ بده. "
+                    "اگر کاربر فارسی صحبت کرد، فارسی جواب بده."
+                )
+            }
         )
 
-        response = await client.responses.create(
-            model="gpt-5-mini",
-            instructions=(
-                "تو دستیار هوشمند NEXORA هستی. "
-                "به کاربران دوستانه، واضح و مفید پاسخ بده. "
-                "اگر کاربر فارسی صحبت کرد، فارسی جواب بده."
-            ),
-            input=user_message
-        )
-
-        await update.message.reply_text(
-            response.output_text
-        )
+        await update.message.reply_text(response.text)
 
     except Exception as e:
-        print("OpenAI error:", e)
+        print("Gemini error:", e)
         await update.message.reply_text(
             "⚠️ فعلاً نتوانستم پاسخ هوشمند تولید کنم. لطفاً دوباره تلاش کنید."
         )
