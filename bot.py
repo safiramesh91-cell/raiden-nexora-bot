@@ -353,6 +353,18 @@ async def button_handler(
     )
 
 
+async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_message = update.message.text
+
+    if not user_message:
+        return
+
+    await update.message.reply_text(
+        "🤖 دستیار هوشمند NEXORA فعال است.\n\n"
+        "پیام شما دریافت شد: " + user_message
+    )
+
+
 def main():
 
     if not BOT_TOKEN:
@@ -363,6 +375,7 @@ def main():
     app = Application.builder().token(
         BOT_TOKEN
     ).build()
+
 
     app.add_handler(
         CommandHandler(
@@ -377,6 +390,13 @@ def main():
         )
     )
 
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & ~filters.COMMAND,
+            ai_chat
+        )
+    )
+    
     print("RAIDEN | NEXORA ARENA is running...")
 
     app.run_polling(
