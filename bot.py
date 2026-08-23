@@ -362,27 +362,47 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user_message:
         return
 
+    history = context.user_data.get("ai_history", [])
+
+    history.append({
+        "role": "user",
+        "text": user_message
+    })
+
+    conversation = ""
+    for item in history[-10:]:
+        conversation += f"{item['role']}: {item['text']}\n"
+
     try:
         response = await gemini_client.aio.models.generate_content(
             model="gemini-3.6-flash",
-            contents=user_message,
+            contents=conversation,
             config={
                 "system_instruction": (
-                    "هستید NEXORA شما دستیار هوشمند. "
-                    "به کاربران دوستانه، واضح و مفید پاسخ بده. "
-                    "اگر کاربر فارسی صحبت کرد، فارسی جواب بده."
+                    "شما NEXORA، دستیار هوشمند NEXORA ARENA هستید. "
+                    "با کاربران دوستانه، واضح و مفید صحبت کن. "
+                    "اگر کاربر فارسی صحبت کرد، فارسی جواب بده. "
+                    "از تاریخچه گفتگو برای به خاطر سپردن صحبت‌های قبلی استفاده کن."
                 )
             }
         )
 
-        await update.message.reply_text(response.text)
+        answer = response.text
+
+        history.append({
+            "role": "assistant",
+            "text": answer
+        })
+
+        context.user_data["ai_history"] = history[-10:]
+
+        await update.message.reply_text(answer)
 
     except Exception as e:
         print("Gemini error:", e)
         await update.message.reply_text(
             "⚠️ فعلاً نتوانستم پاسخ هوشمند تولید کنم. لطفاً دوباره تلاش کنید."
         )
-
 def main():
 
     if not BOT_TOKEN:
