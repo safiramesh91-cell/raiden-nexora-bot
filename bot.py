@@ -370,7 +370,7 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     })
 
     conversation = ""
-    for item in history[-10:]:
+    for item in history[-6:]:
         conversation += f"{item['role']}: {item['text']}\n"
 
     try:
