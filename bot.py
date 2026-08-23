@@ -364,7 +364,7 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         response = await gemini_client.aio.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.6-flash",
             contents=user_message,
             config={
                 "system_instruction": (
