@@ -362,13 +362,13 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user_message:
         return
 
-        try:
+           try:
         response = await gemini_client.aio.models.generate_content(
             model="gemini-2.5-flash",
             contents=user_message,
             config={
                 "system_instruction": (
-                    "تو دستیار هوشمند NEXORA هستی. "
+                    "شما دستیار هوشمند NEXORA هستید. "
                     "به کاربران دوستانه، واضح و مفید پاسخ بده. "
                     "اگر کاربر فارسی صحبت کرد، فارسی جواب بده."
                 )
@@ -381,7 +381,7 @@ async def ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print("Gemini error:", e)
         await update.message.reply_text(
             "⚠️ فعلاً نتوانستم پاسخ هوشمند تولید کنم. لطفاً دوباره تلاش کنید."
-        )
+        ) 
 
 
 def main():
