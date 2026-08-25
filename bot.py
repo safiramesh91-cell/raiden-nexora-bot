@@ -40,6 +40,9 @@ class User(Base):
     )
     username: Mapped[str | None] = mapped_column(String(255), nullable=True)
     pubg_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+   is_premium: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+subscription_plan: Mapped[str | None] = mapped_column(String(50), nullable=True)
+subscription_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     warnings: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
